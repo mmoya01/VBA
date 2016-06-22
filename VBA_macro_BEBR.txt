@@ -1,0 +1,84 @@
+Sub format_macro()
+Dim strF As String, strP As String
+Dim wb As Workbook
+Dim ws As Worksheet
+
+
+'Edit this declaration to your folder name
+strP = "C:\ArcGIS\New_raw_data\Annual_Employment_MSA" 'change for the path of your folder
+
+
+strF = Dir(strP & "\*.xlsx") 'Change as required
+
+
+Do While strF <> vbNullString
+
+
+    Set wb = Workbooks.Open(strP & "\" & strF)
+    Set ws = wb.Sheets(1) 'uses first sheet or if all the same names then ws.Sheets("sheet")
+'find 123456789 and replace with NULL
+
+    Cells.Replace What:="123456789.123", Replacement:="NULL", LookAt:=xlPart _
+        , SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+'find - and replace with _
+
+    Cells.Replace What:="-", Replacement:="_", LookAt:=xlPart _
+        , SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+'find : and replace with ""
+
+    Cells.Replace What:=":", Replacement:="", LookAt:=xlPart _
+        , SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False
+        
+' transpose Macro
+'
+
+'
+    Rows("2:2").Select
+    Selection.Delete Shift:=xlUp
+    ActiveSheet.UsedRange.Select
+    Selection.Copy
+    Sheets.Add After:=ActiveSheet
+    Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:= _
+        False, Transpose:=True
+    Sheets("Sheet1").Select
+    Sheets("Sheet1").Name = "transpose"
+    Sheets("Sheet").Select
+    Sheets("Sheet").Name = "original"
+'
+' time_change Macro
+'
+
+'
+    Worksheets("transpose").Activate
+    Range("B72").Select
+    ActiveCell.FormulaR1C1 = "=CONCATENATE(""YR_"",R[-71])"
+    Dim ncol As Integer
+    ncol = Range("A1").End(xlToRight).Column
+    Range("B72").Select
+    Selection.AutoFill Destination:=Range(Cells(72, 2), Cells(72, ncol)), Type:=xlFillDefault
+    Range(Cells(72, 2), Cells(72, ncol)).Select
+    Selection.Copy
+    Range("B1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    Range(Cells(72, 2), Cells(72, ncol)).Select
+    Application.CutCopyMode = False
+    Selection.ClearContents
+
+'remove spaces
+With ActiveSheet.Range("a1")
+        .Value = VBA.Replace(.Text, " ", "")
+    End With
+
+    ActiveWorkbook.Save
+    wb.Close True
+    
+    strF = Dir()
+Loop
+
+
+End Sub
+
