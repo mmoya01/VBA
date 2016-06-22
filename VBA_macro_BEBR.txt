@@ -8,7 +8,7 @@ Dim ws As Worksheet
 strP = "C:\ArcGIS\New_raw_data\Annual_Employment_MSA" 'change for the path of your folder
 
 
-strF = Dir(strP & "\*.xlsx") 'Change as required
+strF = Dir(strP & "\*.xlsx") 'this will open any xlsx file
 
 
 Do While strF <> vbNullString
